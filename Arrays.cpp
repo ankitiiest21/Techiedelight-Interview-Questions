@@ -204,3 +204,112 @@ int findIndexToGetMaxLength(int a[],int n){
 
 
 -----------------------------------------------------------------------------------------------------------------
+//Finding maximum length of subarray containing consecutive elements.
+
+int findMaxLengthSubarrayConsecutiveElements(int a[],int n)
+{
+ int max_len = 1,mini=INT_MAX,maxi=INT_MIN;
+ REP(i,0,n){
+ 	set<int> s;
+ 	s.insert(a[i]);
+ 	REP(j,i+1,n)
+ 	{
+ 	 //check for duplicate elements(if any)
+ 	 if(s.find(a[j])!=s.end())
+ 	  break;
+ 	 //push curr element to set and update mini and maxi.
+ 	 s.insert(a[j]);
+ 	 mini=min(mini,a[j]);
+ 	 maxi=max(maxi,a[j]);
+ 	 if(maxi-mini==j-i){
+ 	 	max_len=max(max_len,maxi-mini+1);
+ 	 }	
+ 	}
+ }
+ return max_len;
+}
+
+-----------------------------------------------------------------------------------------------------------
+/*Boyer-Moore Majority vote Algorithm-
+Finding majority element(appears more than n/2 times) in O(n) time with O(1) extra space.*/
+
+int majorityElement(int a[],int n){
+	int c=0,m;
+	REP(i,0,n){
+		if(c==0)
+		 m=a[i],c=1;
+		else{
+		 if(c>n/2)
+		  return m;
+		 ((m==a[i])?c++:c--);
+		}
+	}
+	return -1;
+}
+
+
+--------------------------------------------------------------------------------------------------------------------------------------
+
+//Finding longest bitonic subarray(first increasing then decreasing/always increasing/always decreasing)
+//O(n) with O(1) extra space.
+
+int findMaxLengthBitonicSubarray(int a[],int n){
+	int len=1,i=0,max_len=INT_MIN,end;
+	while(i+1<n){
+	 len=1;
+     while(i+1<n&&a[i]<a[i+1]){
+     	i++;
+     	len++;
+     }
+     while(i+1<n&&a[i]>a[i+1]){
+     	i++;
+     	len++;
+     }
+     if(len>max_len){
+     	max_len=len;
+     	end=i;
+     }
+	}
+    //Bitonic Subarray is from (end-max_len+1 to end)
+	return max_len;
+}
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+//Finding longest increasing subsequence of an array..
+//O(nlogn) time with O(n) extra space (https://www.youtube.com/watch?v=1RpMc3fv0y4)
+//Rule 1: Append if greater
+//Rule 2: Replace if smaller
+
+vector<int> findLIS(int a[],int n){
+	int parent[n],increasingSubseq[n+1];
+	int len=0; //to track the length of LIS
+	REP(i,0,n){
+     //Binary Search for finding the position 
+	 int low=1;
+	 int high=len;
+     while(low<=high){
+     	int mid=(int)ceil((low+high)/2);
+     	if(a[increasingSubseq[mid]]<a[i])
+     	 low=mid+1;
+     	else
+     	 high=mid-1;
+     }
+     int pos=low;
+     //updating prev element for LIS
+     parent[i]=increasingSubseq[pos-1];
+     //Appending or Replacing
+     increasingSubseq[pos]=i;
+     //updating length of LIS
+     if(pos>len)
+     	len=pos;
+	}
+	vector<int> LIS(len,0);
+	//Generating LIS by traversing parent array
+	int k=increasingSubseq[len];
+	REPI(j,0,len){
+		LIS[j]=a[k];
+		k=parent[k];
+	}
+	return LIS;
+}
